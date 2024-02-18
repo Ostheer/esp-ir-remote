@@ -39,9 +39,9 @@ unsigned long currentTime = millis();
 unsigned long previousTime = 0;
 const long timeoutTime = 2000;
 
-inline String buttonHtml(String text, String destination) {
-    return "<div class=\"grid-item\"><button onclick=\"xhr('/b/" + destination + "')\" class=\"button\">" + text + "</button></div>";
-} 
+inline String buttonHtml(String text, int function) {
+    return "<div class=\"grid-item\"><button onclick=\"xhr('/c/" + String(function) + "')\" class=\"button\">" + text + "</button></div>";
+}
 
 void setup() {
   IrSender.begin();
@@ -77,39 +77,7 @@ void loop()
             client.println("Connection: close");
             client.println();
 
-            if (header.indexOf("GET /b/chnmax") >= 0)
-              IrSender.sendRC5(0, BUT_CH_UP, 1, true);
-            else if (header.indexOf("GET /b/arrwup") >= 0)
-              IrSender.sendRC5(0, BUT_ARR_UP, 1, true);
-            else if (header.indexOf("GET /b/chnmin") >= 0)
-              IrSender.sendRC5(0, BUT_CH_DOWN, 1, true);
-
-            else if (header.indexOf("GET /b/arleft") >= 0)
-              IrSender.sendRC5(0, BUT_ARR_LEFT, 1, true);
-            else if (header.indexOf("GET /b/okokok") >= 0)
-              IrSender.sendRC5(0, BUT_OK, 1, true);
-            else if (header.indexOf("GET /b/aright") >= 0)
-
-              IrSender.sendRC5(0, BUT_ARR_RIGHT, 1, true);
-            else if (header.indexOf("GET /b/volmax") >= 0)
-              IrSender.sendRC5(0, BUT_VOL_UP, 1, true);
-            else if (header.indexOf("GET /b/ardown") >= 0)
-              IrSender.sendRC5(0, BUT_ARR_DOWN, 1, true);
-            else if (header.indexOf("GET /b/volmin") >= 0)
-              IrSender.sendRC5(0, BUT_VOL_DOWN, 1, true);
-
-            else if (header.indexOf("GET /b/aspect") >= 0)
-              IrSender.sendRC5(0, BUT_ASPECT, 1, true);
-            else if (header.indexOf("GET /b/fmradio") >= 0)
-              IrSender.sendRC5(0, BUT_RADIO, 1, true);
-            else if (header.indexOf("GET /b/sound") >= 0)
-              IrSender.sendRC5(0, BUT_SOUND, 1, true);
-
-            else if (header.indexOf("GET /b/menu") >= 0)
-              IrSender.sendRC5(0, BUT_MENU, 1, true);
-            else if (header.indexOf("GET /b/power") >= 0)
-              IrSender.sendRC5(0, BUT_POWER, 1, true);  
-            else if (header.indexOf("GET /c/") >= 0)
+            if (header.indexOf("GET /c/") >= 0)
               IrSender.sendRC5(0, header.substring(7, header.indexOf("HTTP/1.1")).toInt(), 1, true);
             else if (header.indexOf("GET /c6/") >= 0)
               // Send RC6 command with custom address/function code, e.g. "curl http://esp-373e8d/c6/4/247"
@@ -121,9 +89,8 @@ void loop()
               client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
               client.println("<link rel=\"icon\" href=\"data:,\">");
               client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-              client.println(".button { background-color: #195B6A; border: none; padding: 16px 40px;");
+              client.println(".button { background-color: #195B6A; border: none; padding: 16px 40px; width: 100px;");
               client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-              client.println(".button2 {background-color: #77878A;}");
               client.println(".grid-container{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.grid-item{text-align:center}.button{padding:10px 20px;font-size:16px;border:1px solid #ccc;background-color:#f0f0f0;cursor:pointer}"); // 3x3 grid container class
               client.println("</style><script>");
               client.println("function xhr(loc,callback=Function.prototype){var xhttp=new XMLHttpRequest();xhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200){callback(this)}};xhttp.open(\"GET\",loc);xhttp.send()}");
@@ -131,26 +98,33 @@ void loop()
 
               // Buttons
               client.println("<div class=\"grid-container\">");
-              client.println(buttonHtml("CH+", "chnmax"));
-              client.println(buttonHtml("&#94;", "arrwup"));
-              client.println(buttonHtml("CH-", "chnmin"));
+              client.println(buttonHtml("CH+", BUT_CH_UP));
+              client.println(buttonHtml("&#94;", BUT_ARR_UP));
+              client.println(buttonHtml("CH-", BUT_CH_DOWN));
 
-              client.println(buttonHtml("&lt;", "arleft"));
-              client.println(buttonHtml("OK", "okokok"));
-              client.println(buttonHtml("&gt;", "aright"));
+              client.println(buttonHtml("&lt;", BUT_ARR_LEFT));
+              client.println(buttonHtml("OK", BUT_OK));
+              client.println(buttonHtml("&gt;", BUT_ARR_RIGHT));
 
-              client.println(buttonHtml("Vol+", "volmax"));
-              client.println(buttonHtml("v", "ardown"));
-              client.println(buttonHtml("Vol-", "volmin"));
+              client.println(buttonHtml("Vol+", BUT_VOL_UP));
+              client.println(buttonHtml("v", BUT_ARR_DOWN));
+              client.println(buttonHtml("Vol-", BUT_VOL_DOWN));
 
-              client.println(buttonHtml("Aspect", "aspect"));
-              client.println(buttonHtml("FM", "fmradio"));
-              client.println(buttonHtml("Sound", "sound"));
+              client.println(buttonHtml("Aspect", BUT_ASPECT));
+              client.println(buttonHtml("FM", BUT_RADIO));
+              client.println(buttonHtml("Sound", BUT_SOUND));
 
-              client.println(buttonHtml("Menu", "menu"));
-              client.println(buttonHtml("Power", "power"));
+              client.println(buttonHtml("Menu", BUT_MENU));
+              client.println(buttonHtml("Power", BUT_POWER));
               client.println("<div class=\"grid-item\"><input class=\"button\" style=\"width: 50px;\" type=\"number\" id=\"customCommand\" onkeyup=\"if (event.key ===\'Enter\') {document.getElementById('blastbutton').click()}\">");
-              client.println("<button id=\"blastbutton\" onclick=\"xhr('/c/'+document.getElementById('customCommand').value)\" class=\"button\">Blast</button></div>");
+              client.println("<button id=\"blastbutton\" onclick=\"xhr('/c/'+document.getElementById('customCommand').value)\" class=\"button\" style=\"width: 25px;\">!</button></div>");
+
+              for (int i = 1; i < 10; i++)
+                client.println(buttonHtml(String(i), i));
+              client.println("<div class=\"grid-item\"></div>");
+              client.println(buttonHtml(String(0), 0));
+              client.println("<div class=\"grid-item\"></div>");
+              
               client.println("</div>");
 
               // End document
